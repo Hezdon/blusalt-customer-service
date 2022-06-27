@@ -6,6 +6,7 @@ import com.blusalt.assessment.customerservice.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,19 +21,20 @@ public class CustomerController {
     CustomerService customerService;
 
 
-    @PostMapping(value = "/add")
+    @ResponseBody
+    @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addCustomer(@RequestBody @Valid Customer customer){
         log.info("new customer {}", customer);
-        return new ResponseEntity<>(customerService.saveCustomer(customer), HttpStatus.OK);
+        return new ResponseEntity<>(customerService.saveCustomer(customer).withMessage("Successful"), HttpStatus.OK);
 
     }
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @PostMapping(value = "/fund")
-    public void fundCustomer(@RequestBody @Valid CustomerFund fund){
+    public ResponseEntity<?> fundCustomer(@RequestBody @Valid CustomerFund fund){
 
         log.info("new customer fund {}", fund);
-        customerService.fundCustomer(fund);
+        return new ResponseEntity<>(customerService.fundCustomer(fund), HttpStatus.OK);
 
     }
 }

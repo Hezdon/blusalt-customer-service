@@ -2,11 +2,9 @@ package com.blusalt.assessment.customerservice.service;
 
 import com.blusalt.assessment.customerservice.dto.CustomerFund;
 import com.blusalt.assessment.customerservice.entity.Customer;
-import com.blusalt.assessment.customerservice.repository.CustomerRepo;
+import com.blusalt.assessment.customerservice.repository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,7 +14,7 @@ import java.util.regex.Pattern;
 @Service
 public class CustomerService {
     @Autowired
-    CustomerRepo customerRepo;
+    CustomerRepository customerRepository;
 
     private final static String active = "active";
     private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
@@ -25,16 +23,19 @@ public class CustomerService {
     BillingService billingService;
 
     public Customer saveCustomer(Customer customer) {
+        if(customer.getName().isBlank())
+            throw new IllegalArgumentException("customer name is empty");
+
         log.info("saving to the database : {} ", customer);
-        return customerRepo.save(customer.withStatus(active));
+        return customerRepository.save(customer.withStatus(active));
     }
 
-    public HttpStatus fundCustomer(CustomerFund fund) {
+    public CustomerFund fundCustomer(CustomerFund fund) {
 
         if(!pattern.matcher(fund.getAmount()).matches())
             throw new IllegalArgumentException("amount is not a valid number");
 
-        Optional<Customer> customer = customerRepo.findById(fund.getCustomerId());
+        Optional<Customer> customer = customerRepository.findById(fund.getCustomerId());
         if(customer.isPresent())
             return billingService.sendFund(fund);
 
