@@ -1,17 +1,19 @@
-FROM adoptopenjdk:11-jdk-hotspot
-
-#COPY target/lib lib
-
-COPY target/customer-service-0.0.1-SNAPSHOT.jar app.jar
-
+FROM openjdk:11-jre-slim
 EXPOSE 5050
+WORKDIR /app
 
-ARG JAR_FILE
+# Copy maven executable to the image
+COPY mvnw .
+COPY .mvn .mvn
 
-ENV JAVA_OPTS=""
+# Copy the pom.xml file
+COPY pom.xml .
 
-EVN SPRING_PROFILE = "application.properties"
+# Copy the project source
+COPY ./src ./src
+COPY ./pom.xml ./pom.xml
 
-ENTRYPOINT exec java $JAVA_OPTS \
- -Dspring.profiles.active=$SPRING_PROFILE \
- -jar app.jar
+RUN chmod 755 /app/mvnw
+
+RUN ./mvnw package -DskipTests
+ENTRYPOINT ["java","-jar","target/target/customer-service-0.0.1-SNAPSHOT.jar"]
