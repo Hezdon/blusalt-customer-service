@@ -4,5 +4,5 @@ import com.blusalt.assessment.customerservice.dto.CustomerFund;
 
 public interface BillingService {
 
-    public CustomerFund sendFund(CustomerFund fund);
+    CustomerFund sendFund(CustomerFund fund);
 }
